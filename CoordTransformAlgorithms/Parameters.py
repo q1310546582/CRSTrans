@@ -1,4 +1,5 @@
 #_*_ coding: utf-8 _*_
+from enum import Enum
 
 from zope.interface import Interface, Attribute
 from zope.interface.declarations import implementer
@@ -6,35 +7,73 @@ from zope.interface.declarations import implementer
 #定义IGx2DFourParams接口，定义了一个二维四参数的转换接口
 class IGx2DFourParams(Interface):
     ##定义属性DX:平移量X，DY:平移量Y，Angle:X轴旋转角，ScaleK:尺度因子K
-    Attribute('DX', 'DY', 'Angle', 'ScaleK')
+    Attribute('DX',)
+    Attribute('DY',)
+    Attribute('Angle',)
+    Attribute('ScaleK')
 
 #定义IGx3DFourParams接口，定义了一个三维四参数的转换接口
 class IGx3DFourParams(Interface):
     ##定义属性DX:平移量X, DY:平移量Y, DZ:平移量Z, Angle:X轴旋转角，B0:区域中心点纬度B0, L0:区域中心点经度L0
-    Attribute('DX', 'DY', 'DZ', 'Angle', 'B0', 'L0')
+    Attribute('DX',)
+    Attribute( 'DY',)
+    Attribute( 'DZ',)
+    Attribute( 'Angle',)
+    Attribute( 'B0',)
+    Attribute( 'L0')
 
 #定义IGxSevenParams接口，定义了一个七参数的转换接口
 class IGxSevenParams(Interface):
     ##定义属性DX:平移量X, DY:平移量Y, DZ:平移量Z, AngleX:X轴旋转角，AngleY:Y轴旋转角,AngleZ:Z轴旋转角, ScaleK:尺度因子K
-    Attribute('DX', 'DY', 'DZ', 'AngleX', 'AngleY', 'AngleZ','ScaleK')
+    Attribute('DX')
+    Attribute('DY',)
+    Attribute( 'DZ',)
+    Attribute( 'AngleX',)
+    Attribute( 'AngleY',)
+    Attribute( 'AngleZ',)
+    Attribute('ScaleK')
 
 #定义IGxMolodenskyParams接口，定义了一个Molodensky变换的转换接口
 class IGxMolodenskyParams(IGxSevenParams):
     ##定义属性X0:中心点X坐标, Y0:中心点Y坐标, Z0:中心点Z坐标
-    Attribute('X0', 'Y0', 'Z0')
+    Attribute('X0',)
+    Attribute( 'Y0',)
+    Attribute( 'Z0')
 
 #定义IGxAffineParams接口，定义了一个仿射变换的转换接口
 class IGxAffineParams(Interface):
-    Attribute('A1', 'A2', 'A3', 'A4', 'Tx', 'Ty')
+    Attribute('A1',)
+    Attribute( 'A2',)
+    Attribute( 'A3',)
+    Attribute( 'A4',)
+    Attribute( 'Tx', )
+    Attribute('Ty')
 
 #定义IGxQuadraticPolynomialParams接口，定义了一个二次多项式变换的转换接口
-class IGxQuadraticPolynomialParams(Interface):
-    Attribute('A1', 'A2', 'A3', 'A4', 'A5', 'B1', 'B2', 'B3', 'B4', 'B5')
+class IGxPolynomialFitParams(Interface):
+    Attribute('A1',)
+    Attribute( 'A2',)
+    Attribute( 'A3',)
+    Attribute( 'A4',)
+    Attribute( 'A5',)
+    Attribute( 'B1',)
+    Attribute( 'B2',)
+    Attribute( 'B3',)
+    Attribute( 'B4',)
+    Attribute( 'B5')
 
 #定义IGxEarthParams接口，定义了一个地球椭球参数信息接口
 class IGxEarthParams(Interface):
     ##定义属性A:椭球长半轴, B:椭球短半轴, F:椭球扁率, ProjectType:投影类型, ProjectSurfaceHeight:投影面高
-    Attribute('Name', 'A', 'B','F', 'ProjectType','ProjectSurfaceHeight')
+    Attribute('Name',)
+    Attribute( 'A',)
+    Attribute( 'B',)
+    Attribute('F', )
+    Attribute('e1', )
+    Attribute('e2', )
+    Attribute('EPSG', )
+    Attribute('ProjectType',)
+    Attribute('ProjectSurfaceHeight')
 
 
 ##实现IGx2DFourParams接口,二维四参数转换类
@@ -407,8 +446,8 @@ class GxAffineParams:
     
 
 #实现IGxQuadraticPolynomialParams接口,二次多项式变换转换类
-@implementer(IGxQuadraticPolynomialParams)
-class GxQuadraticPolynomialParams:
+@implementer(IGxPolynomialFitParams)
+class GxPolynomialFitParams:
     def __init__(self):
         self.__A1 = 0.0
         self.__A2 = 0.0
@@ -514,23 +553,27 @@ class GxQuadraticPolynomialParams:
     
     
 @implementer(IGxEarthParams)
-class GxEarthParams:
+class GxEarthParams(Enum):
+
     def __init__(self):
-        self.__Name = 'BJ54'
+        self.__Name = 'Beijing54'
         self.__A = 6378245.0
         self.__F = 1.0 / 298.3
         self.__B = 6356863.0188
         self.__ProjectType = ''
         self.__ProjectSurfaceHeight = 0.0
     
-    def __init__(self, name, a, f, b, projectType, projectSurfaceHeight):
+    def __init__(self, name, a, f, b, e1, e2, projectType, projectSurfaceHeight):
         self.__Name = name
         self.__A = a
         self.__F = f
         self.__B = b
         self.__ProjectType = projectType
+        self.__e1 = e1
+        self.__e2 = e2
         self.__ProjectSurfaceHeight = projectSurfaceHeight
-    
+
+
     @property
     def Name(self):
         return self.__Name
@@ -562,7 +605,23 @@ class GxEarthParams:
     @B.setter
     def B(self, b):
         self.__B = b
-    
+
+    @property
+    def e1(self):
+        return self.__e1
+
+    @e1.setter
+    def e1(self, e1):
+        self.__e1 = e1
+
+    @property
+    def e2(self):
+        return self.__e2
+
+    @e2.setter
+    def e2(self, e2):
+        self.__e2 = e2
+
     @property
     def ProjectType(self):
         return self.__ProjectType
@@ -578,3 +637,4 @@ class GxEarthParams:
     @ProjectSurfaceHeight.setter
     def ProjectSurfaceHeight(self, projectSurfaceHeight):
         self.__ProjectSurfaceHeight = projectSurfaceHeight
+

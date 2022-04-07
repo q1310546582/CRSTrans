@@ -3,12 +3,23 @@
 from zope.interface import Interface, Attribute
 from zope.interface.declarations import implementer
 from enum import Enum
-
-from CoordTransformAlgorithms.Parameters import GxEarthParams
+from CRSTrans_GitHub.CoordTransformAlgorithms.Parameters import GxEarthParams
+import numpy as np
 
 class IGxCoordinatePoint(Interface):
-    '''XorB:X坐标或B坐标, YorL:Y坐标或L坐标, ZorH:Z坐标或H坐标,Band:投影带号'''
-    Attribute('XorB', 'YorL', 'ZorH','Band')
+    '''XorB:X坐标或B坐标, YorL:Y坐标或L坐标, ZorH:Z坐标或H坐标'''
+    Attribute('XorB', )
+    Attribute('YorL',)
+    Attribute('ZorH')
+
+class IGxCoordinatePointArray(Interface):
+    '''存储IGxCoordinatePoint的数组'''
+    Attribute('Array')
+
+    def ToNumpyArray(self):
+        '''转换为NumpyArray'''
+        pass
+
 
 class IGxCoordinatePointPair(Interface):
     '''控制点坐标对，用于计算四参数或七参数
@@ -16,13 +27,32 @@ class IGxCoordinatePointPair(Interface):
     SourceZorH:源大地高或者空间坐标Z,TargetXorB:目标X坐标或B纬度,TargetYorL:目标Y坐标或L经度,TargetZorH:
     目标大地高或者空间坐标Z, ResidualX,ResidualY,ResidualZ:残差X,Y,Z, MeadianError:中误差
     '''
-    Attribute('GUID','CoordinateType','SourceXorB', 'SourceYorL', 'SourceZorH', 
-              'TargetXorB', 'TargetYorL', 'TargetZorH', 'ResidualX', 'ResidualY', 
-              'ResidualZ', 'MeadianError')
+    Attribute('GUID',)
+    Attribute('coordinateType')
+    Attribute('SourceXorB',)
+    Attribute( 'SourceYorL', )
+    Attribute('SourceZorH',)
+    Attribute('TargetXorB', )
+    Attribute('TargetYorL', )
+    Attribute('TargetZorH', )
+    Attribute('ResidualX',)
+    Attribute( 'ResidualY',)
+    Attribute('ResidualZ',)
+    Attribute( 'MeadianError')
+
+class IGxCoordinatePointPairArray(Interface):
+    '''存储IGxCoordinatePointPair的数组'''
+    Attribute('Array')
+
+    def ToNumpyArray(self):
+        '''转换为NumpyArray'''
+        pass
 
 class IGxGaussTransferHelper(Interface):
     '''高斯变换计算类'''
-    Attribute('EarthParams', 'CentralMeridian', 'FalseEasting')
+    Attribute('EarthParams', )
+    Attribute('CentralMeridian',)
+    Attribute( 'FalseEasting')
     def GaussPositiveTransformer(self, coordinatePoint):
         '''高斯正算
         输入：CoordinatePoint,输入的坐标点,(B,L)格式坐标，单位:度
@@ -67,10 +97,16 @@ class IGxGaussTransferHelper(Interface):
     
 class IGxCoordinateTransferHelper(Interface):
     '''坐标转换辅助类'''
-    Attribute('TransformationType', 'TransformationMethod', 'TransformationParameters', 'SourceEarthParameters',
-              'TargetEarthParameters', 'SourceCentralMeridian', 'TargetCentralMeridian', 'SourceFalseEasting',
-              'TargetFalseEasting')
-    
+    Attribute('TransformationType', )
+    Attribute('TransformationMethod', )
+    Attribute('TransformationParameters', )
+    Attribute('SourceEarthParameters',)
+    Attribute('TargetEarthParameters',)
+    Attribute( 'SourceCentralMeridian', )
+    Attribute('TargetCentralMeridian', )
+    Attribute('SourceFalseEasting',)
+    Attribute('TargetFalseEasting')
+
     def doTransform(points):
         '''坐标转换
         输入：points,源坐标点集合
@@ -81,11 +117,12 @@ class IGxCoordinateTransferHelper(Interface):
 class CoordinateType(Enum):
     '''坐标类型'''
     XYZ = 0  #空间直角坐标XYZ
-    XYH = 1  #空间直角坐标XYH
+    BL = 1  #空间直角坐标XYH
     BLH = 2  #空间大地坐标BLH,单位度
     BLH2 = 3 #空间大地坐标BLH,单位弧度
     BLH3 = 4 #空间大地坐标BLH,单位度分秒
     XY = 5   #平面直角坐标XY
+
 
 class TransformationType(Enum):
     '''坐标变换类型'''
@@ -116,14 +153,14 @@ class GxCoordinatePoint:
         self.__XorB = 0.0
         self.__YorL = 0.0
         self.__ZorH = 0.0
-        self.__Band = 1
           
-    def __init__(self, XorB, YorL, ZorH, Band):
+    def __init__(self, XorB, YorL, ZorH, coordinateType):
         self.__XorB = XorB
         self.__YorL = YorL
         self.__ZorH = ZorH
-        self.__Band = Band
-    
+        self.__CoordinateType = coordinateType
+
+
     @property
     def XorB(self):
         return self.__XorB
@@ -147,14 +184,15 @@ class GxCoordinatePoint:
     @ZorH.setter
     def ZorH(self, value):
         self.__ZorH = value
-    
+
     @property
-    def Band(self):
-        return self.__Band
-    
-    @Band.setter
-    def Band(self, value):
-        self.__Band = value
+    def CoordinateType(self):
+        return self.__CoordinateType
+
+    @ZorH.setter
+    def CoordinateType(self, value):
+        self.__CoordinateType = value
+
 
 
 @implementer(IGxCoordinatePointPair)
@@ -173,7 +211,7 @@ class GxCoordinatePointPair:
         self.__ResidualZ = 0.0
         self.__MeadianError = 0.0
     
-    def __init__(self, guid, coordinateType, sourceXorB, sourceYorL, sourceZorH, 
+    def __init__(self, guid, coordinateType, sourceXorB, sourceYorL, sourceZorH,
                  targetXorB, targetYorL, targetZorH):
         self.__GUID = guid
         self.__CoordinateType = coordinateType
@@ -183,102 +221,103 @@ class GxCoordinatePointPair:
         self.__TargetXorB = targetXorB
         self.__TargetYorL = targetYorL
         self.__TargetZorH = targetZorH
+
     
     @property
     def GUID(self):
-        return self.___GUID
+        return self.__GUID
     
     @GUID.setter
     def GUID(self, value):
-        self.___GUID = value
+        self.__GUID = value
     
     @property
     def CoordinateType(self):
-        return self.___CoordinateType
+        return self.__CoordinateType
     
     @CoordinateType.setter
     def CoordinateType(self, value):
-        self.___CoordinateType = value
+        self.__CoordinateType = value
     
     @property
     def SourceXorB(self):
-        return self.___SourceXorB
+        return self.__SourceXorB
     
     @SourceXorB.setter
     def SourceXorB(self, value):
-        self.___SourceXorB = value
+        self.__SourceXorB = value
     
     @property
     def SourceYorL(self):
-        return self.___SourceYorL
+        return self.__SourceYorL
     
     @SourceYorL.setter
     def SourceYorL(self, value):
-        self.___SourceYorL = value
+        self.__SourceYorL = value
     
     @property
     def SourceZorH(self):
-        return self.___SourceZorH
+        return self.__SourceZorH
     
     @SourceZorH.setter
     def SourceZorH(self, value):
-        self.___SourceZorH = value
+        self.__SourceZorH = value
     
     @property
     def TargetXorB(self):
-        return self.___TargetXorB
+        return self.__TargetXorB
     
     @TargetXorB.setter
     def TargetXorB(self, value):
-        self.___TargetXorB = value
+        self.__TargetXorB = value
     
     @property
     def TargetYorL(self):
-        return self.___TargetYorL
+        return self.__TargetYorL
     
     @TargetYorL.setter
     def TargetYorL(self, value):
-        self.___TargetYorL = value
+        self.__TargetYorL = value
     
     @property
     def TargetZorH(self):
-        return self.___TargetZorH
+        return self.__TargetZorH
     
     @TargetZorH.setter
     def TargetZorH(self, value):
-        self.___TargetZorH = value
+        self.__TargetZorH = value
     
     @property
     def ResidualX(self):
-        return self.___ResidualX
+        return self.__ResidualX
     
     @ResidualX.setter
     def ResidualX(self, value):
-        self.___ResidualX = value
-    
+        self.__ResidualX = value
+
     @property
     def ResidualY(self):
-        return self.___ResidualY
-    
+        return self.__ResidualY
+
     @ResidualY.setter
     def ResidualY(self, value):
-        self.___ResidualY = value
+        self.__ResidualY = value
     
     @property
     def ResidualZ(self):
-        return self.___ResidualZ
+        return self.__ResidualZ
     
     @ResidualZ.setter
     def ResidualZ(self, value):
-        self.___ResidualZ = value
+        self.__ResidualZ = value
     
     @property
     def MeadianError(self):
-        return self.___MeadianError
+        return self.__MeadianError
     
     @MeadianError.setter
     def MeadianError(self, value):
-        self.___MeadianError = value
+        self.__MeadianError = value
     
 
 @implementer(IGxGaussTransferHelper)
@@ -370,8 +409,58 @@ class GxGaussTransferHelper:
         '''
         pass
     
-    
-        
+@implementer(IGxCoordinatePointArray)
+class GxCoordinatePointArray:
+    def __init__(self, L, coordinateType):
+        self.__Array = L
+        self.__CoordinateType = coordinateType
 
-    
+    @property
+    def Array(self) -> list:
+        return self.__Array
 
+    @Array.setter
+    def Array(self, value:list) -> None:
+        self.__Array = value
+
+    def ToNumpyArray(self, to_dimension):
+        '''转换为NumpyArray'''
+        if(to_dimension == 3):
+            if(self.__CoordinateType == CoordinateType.XY or self.__CoordinateType == CoordinateType.BL):
+                return 'Conversion from 2D coordinates to 3D coordinates is not supported'
+
+        if(to_dimension == 2):
+            list = [[i.XorB, i.YorL] for i in self.__Array]
+        elif (to_dimension == 3):
+            list = [[i.XorB, i.YorL, i.ZorH] for i in self.__Array]
+        else:
+            return 'Please enter the correct coordinate dimension'
+        return np.array(list)
+
+@implementer(IGxCoordinatePointPairArray)
+class GxCoordinatePointPairArray:
+    def __init__(self, L, coordinateType):
+        self.__Array = L
+        self.__CoordinateType = coordinateType
+
+    @property
+    def Array(self) -> list:
+        return self.__Array
+
+    @Array.setter
+    def Array(self, value:list) -> None:
+        self.__Array = value
+
+    def ToNumpyArray(self, to_dimension = 2):
+        '''转换为NumpyArray'''
+        if(to_dimension == 3):
+            if(self.__CoordinateType == CoordinateType.XY or self.__CoordinateType == CoordinateType.BL):
+                return 'Conversion from 2D coordinates to 3D coordinates is not supported'
+
+        if(to_dimension == 2):
+            list = [[i.SourceXorB, i.SourceYorL, i.TargetXorB, i.TargetYorL] for i in self.__Array]
+        elif(to_dimension == 3):
+            list = [[i.SourceXorB, i.SourceYorL, i.SourceZorH, i.TargetXorB, i.TargetYorL, i.TargetZorH] for i in self.__Array]
+        else:
+            return 'Please enter the correct coordinate dimension'
+        return np.array(list)
