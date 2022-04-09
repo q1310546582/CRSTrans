@@ -1,1 +1,11 @@
+#  The file describe the requirment packages in the dev evenironment
+#
+#
+#
 
+zope.interface
+spyne
+suds
+zeep
+gdal
+flask
