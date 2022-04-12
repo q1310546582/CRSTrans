@@ -1,4 +1,4 @@
-from TransToEllipseAsPublicClass import *
+from CRSTrans_GitHub.CoordTransformAlgorithms.Algorithms.TransToEllipseAsPublicClass import *
 from CRSTrans_GitHub.CoordTransformAlgorithms.Helper import *
 import numpy as np
 import pandas as pd

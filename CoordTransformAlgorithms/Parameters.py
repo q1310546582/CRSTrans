@@ -46,7 +46,7 @@ class IGxAffineParams(Interface):
     Attribute( 'A2',)
     Attribute( 'A3',)
     Attribute( 'A4',)
-    Attribute( 'Tx', )
+    Attribute( 'Tx',)
     Attribute('Ty')
 
 #定义IGxQuadraticPolynomialParams接口，定义了一个二次多项式变换的转换接口
@@ -74,7 +74,6 @@ class IGxEarthParams(Interface):
     Attribute('EPSG', )
     Attribute('ProjectType',)
     Attribute('ProjectSurfaceHeight')
-
 
 ##实现IGx2DFourParams接口,二维四参数转换类
 @implementer(IGx2DFourParams)
@@ -126,6 +125,7 @@ class Gx2DFourParams:
     
 #实现IGx3DFourParams接口,三维四参数转换类
 @implementer(IGx3DFourParams)
+
 class Gx3DFourParams:
     def __init__(self):
         self.__DX = 0.0

@@ -1,5 +1,5 @@
 from CRSTrans_GitHub.CoordTransformAlgorithms.Helper import *
-from GxXYZTransAsPublicClass import *
+from CRSTrans_GitHub.CoordTransformAlgorithms.Algorithms.GxXYZTransAsPublicClass import *
 import numpy as np
 import pandas as pd
 from scipy.optimize import lsq_linear

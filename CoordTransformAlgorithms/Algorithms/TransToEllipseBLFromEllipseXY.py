@@ -1,5 +1,5 @@
 from GxEllipsoidEnum import *
-from TransToEllipseAsPublicClass import *
+from CRSTrans_GitHub.CoordTransformAlgorithms.Algorithms.TransToEllipseAsPublicClass import *
 from CRSTrans_GitHub.CoordTransformAlgorithms.Helper import *
 
 import numpy as np
@@ -75,14 +75,16 @@ class GaussNegativeTransformer(TransToEllipseAsPublicClass):
         return self.rad2angle(B), self.L0 + self.rad2angle(l)
 
 if __name__ == '__main__':
-    # band:20 GCS: Beijing1954 interval: 6
+    # band:20 PCS: Beijing1954 interval: 6
     # L = [(3378627.23968484, 20243953.4127856), (3378627.23968484, 20243953.4127856)]
-    # band:36 GCS: Xian1980 interval: 3
+
+    # band:36 PCS: Xian1980 interval: 3
     L = [[3046786.311,36619727.096,859.654],
     [3046862.134,36619650.747,864.782],
     [3046821.690,36619531.800,880.333],
     [3046901.864,36619637.405,874.796],]
-    # band:34 GCS Control Points: [Beijing1954[:3]，Xian80[3:]] interval: 3
+
+    # band:34 PCS Control Points: [Beijing1954[:3]，Xian80[3:]] interval: 3
     L = [[3391528.524, 483058.025, 212.191, 3391480.452, 483007.7061, 212.191],
          [3397833.33, 503800.445, 16.058, 3397785.261, 503750.1382, 16.154],
          [3397832.012, 522616.596, 136.225, 3397783.94, 522566.2938, 136.225],

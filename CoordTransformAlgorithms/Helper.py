@@ -410,8 +410,8 @@ class GxGaussTransferHelper:
         pass
     
 @implementer(IGxCoordinatePointArray)
-class GxCoordinatePointArray:
-    def __init__(self, L, coordinateType):
+class GxCoordinatePointArray():
+    def __init__(self, L , coordinateType):
         self.__Array = L
         self.__CoordinateType = coordinateType
 
@@ -438,7 +438,7 @@ class GxCoordinatePointArray:
         return np.array(list)
 
 @implementer(IGxCoordinatePointPairArray)
-class GxCoordinatePointPairArray:
+class GxCoordinatePointPairArray():
     def __init__(self, L, coordinateType):
         self.__Array = L
         self.__CoordinateType = coordinateType
