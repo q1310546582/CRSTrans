@@ -6,7 +6,7 @@ from scipy.optimize import lsq_linear
 
 
 class Gx2DAffineTrans(GxXYZTransAsPublicClass):
-    """此模型是依据最小二乘法布尔莎-沃尔夫七参数转换模型"""
+    """此模型是依据最小二乘法的二维仿射变换模型"""
 
     def __init__(self, public_points):
         '''
@@ -16,7 +16,7 @@ class Gx2DAffineTrans(GxXYZTransAsPublicClass):
 
         self.public_num = 4  # 至少要求的公共点数量
         self.dimension = 2  # 当前模型坐标的维度
-        self.model_name = '仿射变换模型'
+        self.model_name = 'Affine transformation model'
         self.load_data(public_points)  # 加载数据
         self.__public_points = self.Public_points
 
@@ -35,6 +35,8 @@ class Gx2DAffineTrans(GxXYZTransAsPublicClass):
         # 计算中误差矩阵
         self.residual_array, self.MSE_array, self.MSE_point = self.RMSE(self.__public_points[:, self.dimension:],
                                                                         self.Predict_points)
+        self.__prams_array = self.res['x']
+
         print(f'''
         模型：{self.model_name},
         模型训练阶段:{self.res['message']},
@@ -42,7 +44,8 @@ class Gx2DAffineTrans(GxXYZTransAsPublicClass):
         综合坐标分量中误差为：{self.MSE_array},
         综合点位中误差为：{self.MSE_point},
         ''')
-        return {'model': self.model_name, 'message': self.res['message'], 'x': self.res['x'],
+        return {'model': self.model_name, 'message': self.res['message'],
+                'x': dict({f"param{i}": v for i, v in enumerate(self.__prams_array)}),
                 'residual_array': self.residual_array,
                 'axisMSE': self.MSE_array, 'MSE': self.MSE_point}
 

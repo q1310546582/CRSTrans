@@ -1,0 +1,19 @@
+ENVI
+description = {
+C:\Users\86157\PycharmProjects\PyQt5\CRSTrans_GitHub\CoordTransformServices\data2\dem.dat}
+samples = 2952
+lines   = 2387
+bands   = 1
+header offset = 0
+file type = ENVI Standard
+data type = 2
+interleave = bsq
+byte order = 0
+map info = {Geographic Lat/Lon, 1, 1, 101.02208358, 28.42791725, 0.0008333333, 0.0008333333,WGS-84}
+coordinate system string = {GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]}
+band names = {
+Band 1}
+coordinate system string = {GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]}
+data ignore value = -3.27680000e+004
+x start = 1228
+y start = 1888

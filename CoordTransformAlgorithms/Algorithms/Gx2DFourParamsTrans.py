@@ -51,6 +51,7 @@ class XY_4p(GxXYZTransAsPublicClass):
         # 计算中误差矩阵
         self.residual_array, self.MSE_array, self.MSE_point = self.RMSE(self.__public_points[:, self.dimension:],
                                                                         self.Predict_points )
+        self.__prams_array = self.res['x']
         print(f'''
         模型：{self.model_name},
         模型训练阶段:{self.res['message']},
@@ -58,7 +59,8 @@ class XY_4p(GxXYZTransAsPublicClass):
         综合坐标分量中误差为：{self.MSE_array},
         综合点位中误差为：{self.MSE_point},
         ''')
-        return {'model': self.model_name, 'message': self.res['message'], 'x': self.res['x'],
+        return {'model': self.model_name, 'message': self.res['message'],
+                'x': {'OffsetX': self.__prams_array[0], 'OffsetY': self.__prams_array[1], 'Rotation': self.__prams_array[2], 'Scale': self.__prams_array[3],},
                 'residual_array': self.residual_array,
                 'axisMSE': self.MSE_array, 'MSE': self.MSE_point}
 

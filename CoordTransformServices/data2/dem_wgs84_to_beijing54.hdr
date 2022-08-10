@@ -1,0 +1,16 @@
+ENVI
+description = {
+.\data2\dem_wgs84_to_beijing54.dat}
+samples = 2952
+lines   = 2387
+bands   = 1
+header offset = 0
+file type = ENVI Standard
+data type = 4
+interleave = bsq
+byte order = 0
+map info = {Geographic Lat/Lon, 1, 1, 101.02208358, 28.42791725, 0.0008333333, 0.0008333333}
+coordinate system string = {GEOGCS["GCS_Beijing_1954",DATUM["D_Beijing_1954",SPHEROID["Krasovsky_1940",6378245.0,298.3]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]}
+band names = {
+Band 1}
+data ignore value = -32768

@@ -6,6 +6,7 @@ from enum import Enum
 from CRSTrans_GitHub.CoordTransformAlgorithms.Parameters import GxEarthParams
 import numpy as np
 
+
 class IGxCoordinatePoint(Interface):
     '''XorB:X坐标或B坐标, YorL:Y坐标或L坐标, ZorH:Z坐标或H坐标'''
     Attribute('XorB', )
@@ -102,7 +103,7 @@ class IGxCoordinateTransferHelper(Interface):
     Attribute('TransformationParameters', )
     Attribute('SourceEarthParameters',)
     Attribute('TargetEarthParameters',)
-    Attribute( 'SourceCentralMeridian', )
+    Attribute('SourceCentralMeridian', )
     Attribute('TargetCentralMeridian', )
     Attribute('SourceFalseEasting',)
     Attribute('TargetFalseEasting')
@@ -114,25 +115,24 @@ class IGxCoordinateTransferHelper(Interface):
         '''
         pass
 
+
 class CoordinateType(Enum):
     '''坐标类型'''
-    XYZ = 0  #空间直角坐标XYZ
-    BL = 1  #空间直角坐标XYH
-    BLH = 2  #空间大地坐标BLH,单位度
-    BLH2 = 3 #空间大地坐标BLH,单位弧度
-    BLH3 = 4 #空间大地坐标BLH,单位度分秒
-    XY = 5   #平面直角坐标XY
-
+    XY = 0
+    XYZ = 1
+    BL = 2
+    BLH = 3
 
 class TransformationType(Enum):
     '''坐标变换类型'''
-    BLtoXY = 0  #空间大地坐标转平面直角坐标
-    XYtoBL = 1  #平面直角坐标转空间大地坐标
-    XYtoXY = 2  #平面直角坐标转平面直角坐标
-    BLHtoBLH = 3 #空间大地坐标转空间大地坐标
-    BLHtoXYH = 4 #空间大地坐标转空间直角坐标
-    XYHtoXYH = 5 #空间直角坐标转空间直角坐标
-    XYHtoBLH = 6 #空间直角坐标转空间大地坐标
+    XYZ2XYZ = 0
+    BLH2BLH = 1
+    XY2XY   = 2
+    BL2BL   = 3
+    BL2XY   = 4
+    XY2BL   = 5
+    BLH2XYZ = 6
+    XYZ2BLH = 7
 
 class TransformationMethods(Enum):
     '''坐标转换方法或模型'''
@@ -142,10 +142,19 @@ class TransformationMethods(Enum):
     SevenParams3D = 3       #三维七参数转换模型
     FourParams2D = 4        #平面四参数转换模型
     FourParams3D = 5        #三维四参数转换模型
-    MapGridDelt = 6         #格网改正量转换模型
-    QuadraticPolynomial = 7 #二次多项式转换模型
-    AffineTrans = 8         #仿射变换转换模型
-    
+    ThreeParams3D = 6       #三维三参数转换模型
+    Polynomial = 6          #二次多项式转换模型
+    AffineTrans = 7         #仿射变换转换模型
+    GaussPositive = 8       #高斯正算
+    GaussNegative = 9       #高斯反算
+    XYZ2BLH = 10            #空间直角坐标系转大地坐标系
+    BLH2XYZ = 11            #大地坐标系转空间直角坐标系
+
+
+
+
+
+
 
 @implementer(IGxCoordinatePoint)
 class GxCoordinatePoint:

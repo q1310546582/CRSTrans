@@ -27,10 +27,8 @@ class GxXYZTransAsPublicClass(object):
 
     def RMSE(self, train_points, result_points):
         '''评价并返回'''
-        n = train_points.shape[0] - 1
-        L1 = train_points - result_points
-        L2 = np.sqrt(np.sum(np.power(train_points - result_points, 2), axis=1))
-        residual_array = np.concatenate([L1, L2.reshape(-1, 1)], axis=1)
+        n = train_points.shape[0]
+        residual_array = result_points - train_points
         correct_array = (np.sum(np.power(train_points - result_points, 2), axis=0) / (n - 1))  # [vv]/n-1矩阵
         MSE_array = np.sqrt(correct_array)  # 坐标分量中误差矩阵
         MSE_point = np.sqrt(np.sum(correct_array))  # 点位中误差值

@@ -1,8 +1,10 @@
+from osgeo import osr
+
 from CRSTrans_GitHub.CoordTransformAlgorithms.Helper import *
 import numpy as np
 import pandas as pd
 from scipy.optimize import lsq_linear
-from GxEllipsoidEnum import *
+from CRSTrans_GitHub.CoordTransformAlgorithms.Algorithms.GxEllipsoidEnum import *
 
 class TransToEllipseAsPublicClass(object):
     """此模型是同一基准下坐标互转换模型"""
@@ -79,3 +81,18 @@ class TransToEllipseAsPublicClass(object):
 
     def predict(self):
         pass
+
+    @staticmethod
+    def EPSGToEllipsoid(EPSG):
+        srs = osr.SpatialReference()
+        srs.ImportFromEPSG(EPSG)
+
+        return{
+            'Name': srs.GetName(),
+            'A': srs.GetSemiMajor(),
+            'B': srs.GetSemiMinor(),
+            'F': 1 / srs.GetInvFlattening(),
+            'e1': (np.sqrt((srs.GetSemiMajor()**2 - srs.GetSemiMinor()**2))/ srs.GetSemiMajor())**2,
+            'e2': (np.sqrt((srs.GetSemiMajor()**2 - srs.GetSemiMinor()**2))/ srs.GetSemiMinor())**2,
+        }
+

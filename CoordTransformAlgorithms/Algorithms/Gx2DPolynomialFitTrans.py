@@ -3,7 +3,6 @@ from CRSTrans_GitHub.CoordTransformAlgorithms.Algorithms.GxXYZTransAsPublicClass
 import numpy as np
 import pandas as pd
 from scipy.optimize import lsq_linear
-from GxEllipsoidEnum import *
 
 class Poly_fit(GxXYZTransAsPublicClass):
     """此模型是平面多项式拟合模型，适用于小地区坐标转换"""
@@ -20,7 +19,7 @@ class Poly_fit(GxXYZTransAsPublicClass):
             self.public_num = 4
         self.dimension = 2  # 当前模型坐标的维度
         self.load_data(public_points)  # 加载数据
-        self.model_name = '平面多项式拟合模型'
+        self.model_name = 'Plane polynomial fitting model'
         self.n = order
         self.__public_points = self.Public_points
 
@@ -91,11 +90,14 @@ class Poly_fit(GxXYZTransAsPublicClass):
         res2 = lsq_linear(A, b2, lsmr_tol='auto')
         self.res1 = res1
         self.res2 = res2
+
         # 将公共点代入训练好的模型得到结果
         self.Predict_points = self.predict(self.__public_points[:, :self.dimension])
         # 计算中误差矩阵
         self.residual_array, self.MSE_array, self.MSE_point = self.RMSE(self.__public_points[:, self.dimension:],
                                                                         self.Predict_points)
+        self.__prams_array1 = self.res1['x']
+        self.__prams_array2 = self.res2['x']
         print(f'''
         模型：{self.model_name},
         模型训练阶段:{self.res1['message']},
@@ -105,7 +107,7 @@ class Poly_fit(GxXYZTransAsPublicClass):
         综合点位中误差为：{self.MSE_point},
         ''')
         return {'model': self.model_name, 'message': self.res1['message'],
-                'x1': self.res1['x'], 'x2': self.res2['x'],
+                    'x': dict({f"paramX{i}":v for i,v in enumerate(self.__prams_array1)}, **{f"paramY{i}":v for i,v in enumerate(self.__prams_array2)}),
                 'residual_array': self.residual_array,
                 'axisMSE': self.MSE_array, 'MSE': self.MSE_point}
 

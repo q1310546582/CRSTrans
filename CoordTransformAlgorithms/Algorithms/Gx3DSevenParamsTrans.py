@@ -3,18 +3,18 @@ from CRSTrans_GitHub.CoordTransformAlgorithms.Algorithms.GxBLHTransAsPublicClass
 import numpy as np
 import pandas as pd
 from scipy.optimize import lsq_linear
-from GxEllipsoidEnum import *
+from CRSTrans_GitHub.CoordTransformAlgorithms.Algorithms.GxEllipsoidEnum import *
 
 class Gx3DSevenParamsTrans(GxBLHTransAsPublicClass):
-    """此模型是二维七参数转换模型，适用于局部坐标系的坐标转换，区域<2*2°"""
+    """此模型是三维七参数转换模型，适用于大范围国家或省级转换尺度°"""
 
     def __init__(self, source_ellipsoid, target_ellipsoid, public_points):
         '''
         平面四参数转换模型转换模型参数说明：
-        参数1支持待转换的浮点型二维数组，每个元素存储一个点坐标，(B,L)
+        参数1支持待转换的浮点型三维数组，每个元素存储一个点坐标，(B,L,H)
         '''
-        self.source_ellipsoid = source_ellipsoid.value
-        self.target_ellipsoid = target_ellipsoid.value
+        self.source_ellipsoid = source_ellipsoid
+        self.target_ellipsoid = target_ellipsoid
         self.public_num = 3  # 至少要求的公共点数量
         self.dimension = 3  # 当前模型坐标的维度
         self.load_data(public_points)  # 加载数据
@@ -111,7 +111,7 @@ class Gx3DSevenParamsTrans(GxBLHTransAsPublicClass):
         # 计算中误差矩阵
         self.residual_array, self.MSE_array, self.MSE_point = self.RMSE(self.__public_points[:, self.dimension:],
                                                                         self.Predict_points)
-
+        self.__prams_array = self.res['x']
         print(f'''
         模型：{self.model_name},
         模型训练阶段:{self.res['message']},
@@ -119,7 +119,11 @@ class Gx3DSevenParamsTrans(GxBLHTransAsPublicClass):
         综合坐标分量中误差为(°, °, m)：{self.MSE_array},
         综合点位中误差为：{self.MSE_point},
         ''')
-        return {'model': self.model_name, 'message': self.res['message'], 'x': self.res['x'],
+        return {'model': self.model_name, 'message': self.res['message'],
+                'x': {'OffsetX': self.__prams_array[0], 'OffsetY': self.__prams_array[1],
+                      'OffsetZ': self.__prams_array[2],
+                      'RotationX': self.__prams_array[3], 'RotationY': self.__prams_array[4],
+                      'RotationZ': self.__prams_array[5], 'Scale': self.__prams_array[6]},
                 'residual_array': self.residual_array,
                 'axisMSE': self.MSE_array, 'MSE': self.MSE_point}
 
@@ -179,6 +183,15 @@ class Gx3DSevenParamsTrans(GxBLHTransAsPublicClass):
         C = np.array(C).ravel()
         return C
 
+    def RMSE(self, train_points, result_points):
+        '''评价并返回'''
+        n = train_points.shape[0]
+        residual_array = train_points - result_points
+        correct_array = (np.sum(np.power(residual_array, 2), axis=0) / (n - 1))  # [vv]/n-1矩阵
+        MSE_array = np.sqrt(correct_array)  # 坐标分量中误差矩阵
+        MSE_point = np.sqrt(np.sum(correct_array[:2]))  # 点位中误差值
+        return residual_array, MSE_array, MSE_point
+
 if __name__ == '__main__':
     L = [(30.64354056288796, 101.82326215300266, 212.191, 30.643635522569028, 101.82273416037872, 212.191),
          (30.70052345042203, 102.03966935973139, 16.058, 30.700620284521527, 102.03914493180069, 16.154),
@@ -191,7 +204,7 @@ if __name__ == '__main__':
     L = [GxCoordinatePointPair(idx, CoordinateType.BLH, item[0], item[1], item[2], item[3], item[4], item[5]) for
          idx, item in enumerate(L)]
     CoordinatePointPairArray = GxCoordinatePointPairArray(L, CoordinateType.BLH)
-    blh_7p = Gx3DSevenParamsTrans(source_ellipsoid=GxEllipsoidEnum['Beijing54'], target_ellipsoid=GxEllipsoidEnum['Xian80'],
+    blh_7p = Gx3DSevenParamsTrans(source_ellipsoid=GxEllipsoidEnum['Beijing54'].value, target_ellipsoid=GxEllipsoidEnum['Xian80'].value,
                                   public_points=CoordinatePointPairArray.ToNumpyArray(3))
     blh_7p.fit()
     print(np.concatenate([blh_7p.Public_points[:, 3:],blh_7p.Predict_points], axis = 1))
